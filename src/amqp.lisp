@@ -181,6 +181,12 @@ the connection bound to CONN."
               ,@body)
          (destroy-connection ,conn-sym)))))
 
+(defmacro with-channel ((conn channel) &body body)
+  "Open CHANNEL, evaluate BODY and close CHANNEL before exiting"
+  `(unwind-protect
+        (progn (channel-open ,conn ,channel)
+               ,@body)
+     (channel-close ,conn ,channel)))
 ;;;
 ;;;  API calls
 ;;;
@@ -520,7 +526,7 @@ then it will be encoded using ENCODING before sending.
 
 PROPERTIES - indicates an alist of message properties. The
 following property keywords are accepted:
-:CONTENT-TYPE :CONTENT-ENCODING :DELIVERY-MODE :PRIORITY :CORRELATION-ID 
+:CONTENT-TYPE :CONTENT-ENCODING :DELIVERY-MODE :PRIORITY :CORRELATION-ID
 :REPLY-TO :EXPIRATION :MESSAGE-ID :TIMESTAMP :TYPE :USER-ID :APP-ID :CLUSTER-ID :HEADERS"
   (check-type channel integer)
   (check-type exchange (or null string))
